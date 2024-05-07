@@ -10,11 +10,14 @@ public partial class coin : Area2D
     {
         base._Ready();
         Animation= GetNode<AnimationPlayer>("AnimationPlayer");
+        gm= GetNode<GameManager>("%GameManager");
     }
 
+    GameManager  gm;
     private void CoinEntered(PhysicsBody2D body)
     {
         GD.Print("金币+1");
+        gm.AddCoin();
         Animation.Play("PickUp");
         
     }

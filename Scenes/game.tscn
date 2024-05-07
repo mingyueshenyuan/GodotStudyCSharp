@@ -1,9 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://dppcjdmanobi5"]
+[gd_scene load_steps=14 format=3 uid="uid://dppcjdmanobi5"]
 
 [ext_resource type="Texture2D" uid="uid://b46460sck0ml5" path="res://Art/sprites/world_tileset.png" id="1_1xkef"]
-[ext_resource type="PackedScene" uid="uid://rvbrl4toocaj" path="res://Scenes/playe.tscn" id="2_1a57h"]
+[ext_resource type="Script" path="res://GameManager.cs" id="1_kk40a"]
+[ext_resource type="PackedScene" uid="uid://rvbrl4toocaj" path="res://Scenes/player.tscn" id="2_1a57h"]
 [ext_resource type="PackedScene" uid="uid://bocq3dnorai1f" path="res://Scenes/platform.tscn" id="3_7gfg6"]
 [ext_resource type="PackedScene" uid="uid://b4nwqx5mn317m" path="res://Scenes/coin.tscn" id="4_f78v7"]
+[ext_resource type="PackedScene" uid="uid://dc7bsuqtlkv8v" path="res://Scenes/killZone.tscn" id="6_77cmo"]
+[ext_resource type="PackedScene" uid="uid://h806adritlwe" path="res://Scenes/silme.tscn" id="7_f01u2"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pgmq5"]
 texture = ExtResource("1_1xkef")
@@ -415,6 +418,21 @@ texture = ExtResource("1_1xkef")
 physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_pgmq5")
 
+[sub_resource type="Animation" id="Animation_ersyp"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(14, -32)]
+}
+
 [sub_resource type="Animation" id="Animation_dc02o"]
 resource_name = "move"
 length = 2.0
@@ -432,31 +450,28 @@ tracks/0/keys = {
 "values": [Vector2(14, -32), Vector2(-81, -32)]
 }
 
-[sub_resource type="Animation" id="Animation_ersyp"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(14, -32)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ke1o5"]
 _data = {
 "RESET": SubResource("Animation_ersyp"),
 "move": SubResource("Animation_dc02o")
 }
 
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_eiulm"]
+
 [node name="Game" type="Node2D"]
 
 [node name="GameManager" type="Node" parent="."]
 unique_name_in_owner = true
+script = ExtResource("1_kk40a")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="GameManager"]
+
+[node name="Label" type="Label" parent="GameManager/CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(0.262932, 0.262932, 0.262932, 1)
+theme_override_font_sizes/font_size = 24
+text = "已收集金币"
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_5seo1")
@@ -473,6 +488,10 @@ position = Vector2(30, -9)
 
 [node name="Camera2D" type="Camera2D" parent="Playe"]
 zoom = Vector2(4, 4)
+process_callback = 0
+limit_left = -230
+limit_right = 290
+limit_bottom = 100
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 
@@ -484,10 +503,16 @@ position = Vector2(91, -31)
 [node name="Coin2" parent="Coins" instance=ExtResource("4_f78v7")]
 position = Vector2(-65, -26)
 
+[node name="Coin3" parent="Coins" instance=ExtResource("4_f78v7")]
+position = Vector2(56, -65)
+
 [node name="Platforms" type="Node" parent="."]
 
 [node name="Platform" parent="Platforms" instance=ExtResource("3_7gfg6")]
 position = Vector2(-92, -59)
+
+[node name="Coin2" parent="Platforms/Platform" instance=ExtResource("4_f78v7")]
+position = Vector2(-1, -5)
 
 [node name="Platform2" parent="Platforms" instance=ExtResource("3_7gfg6")]
 position = Vector2(14, -32)
@@ -497,3 +522,21 @@ libraries = {
 "": SubResource("AnimationLibrary_ke1o5")
 }
 autoplay = "move"
+
+[node name="Coin2" parent="Platforms/Platform2" instance=ExtResource("4_f78v7")]
+position = Vector2(-1, -5)
+
+[node name="KillZone" parent="." instance=ExtResource("6_77cmo")]
+position = Vector2(-60, 94)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone"]
+shape = SubResource("WorldBoundaryShape2D_eiulm")
+
+[node name="Silme" parent="." instance=ExtResource("7_f01u2")]
+position = Vector2(-62, 1)
+
+[node name="Coin" parent="." instance=ExtResource("4_f78v7")]
+position = Vector2(-200, -65)
+
+[node name="Coin2" parent="." instance=ExtResource("4_f78v7")]
+position = Vector2(281, -32)
